@@ -1,5 +1,6 @@
-# Simple server for file uploading in Python 3 in less than 100 lines
+# Uploading files using Python 3 in less than 100 lines
 
+Simple server for listing file directory over HTTP, and uploading files.
 Based on `http.server`, this module adds file upload functionality to it.
 
 Just as with `http.server`, you SHOULD NOT use this module in
@@ -10,9 +11,7 @@ or public Wi-Fi networks): it is not secure!
 
 Same as for `http.server`:
 
-```
-python3 -m upload
-```
+    python3 -m upload
 
 or:
     
@@ -20,19 +19,17 @@ or:
 
 supported arguments (see `python3 -m upload -h`):
 
-```
 usage: upload.py [-h] [--bind ADDRESS] [--directory DIRECTORY] [port]
 
-positional arguments:
-  port                  Port number [default: 8000]
+    positional arguments:
+    port                  Port number [default: 8000]
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --bind ADDRESS, -b ADDRESS
-                        Bind address [default: all interfaces]
-  --directory DIRECTORY, -d DIRECTORY
-                        Directory to list [default:current directory]
-```
+    optional arguments:
+    -h, --help            show this help message and exit
+    --bind ADDRESS, -b ADDRESS
+                            Bind address [default: all interfaces]
+    --directory DIRECTORY, -d DIRECTORY
+                            Directory to list [default:current directory]
 
 ## License
 
