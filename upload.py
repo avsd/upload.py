@@ -56,7 +56,8 @@ class SimpleHTTPRequestHandlerWithUpload(server.SimpleHTTPRequestHandler):
         except UnicodeDecodeError:
             displaypath = urllib.parse.unquote(path)
         f = io.BytesIO()
-        f.write(UPLOAD_PAGE_TEMPLATE.format(**locals()).encode(enc, 'surrogateescape'))
+        encoded = UPLOAD_PAGE_TEMPLATE.format(**locals()).encode(enc, 'surrogateescape')
+        f.write(encoded)
         f.seek(0)
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-type", "text/html; charset=%s" % enc)
