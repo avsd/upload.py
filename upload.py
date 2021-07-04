@@ -7,6 +7,28 @@ from functools import partial
 import contextlib
 
 UPLOAD_LINK = '... click here to upload a file ...'
+UPLOAD_PAGE_TEMPLATE = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset={enc}">
+  <title>Upload to {displaypath}</title>
+  <script>
+    function upload() {{
+      var file = document.getElementById("file").files[0];
+      if (!file) {{ return; }}
+      fetch(document.location.href, {{ method: 'POST', body: file, headers: {{ filename: file.name }} }})
+        .catch(console.error)
+        .then(() => {{ window.location = document.referrer }});
+    }}
+  </script>
+</head>
+<body>
+  <h1>Upload to {displaypath}</h1>
+  <hr><input id="file" type="file" onchange="upload()"><hr>
+</body>
+</html>
+'''
 
 
 class SimpleHTTPRequestHandlerWithUpload(server.SimpleHTTPRequestHandler):
@@ -33,31 +55,8 @@ class SimpleHTTPRequestHandlerWithUpload(server.SimpleHTTPRequestHandler):
             displaypath = urllib.parse.unquote(path, errors='surrogatepass')
         except UnicodeDecodeError:
             displaypath = urllib.parse.unquote(path)
-        title = 'Upload to %s' % displaypath
-        encoded = '''
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta http-equiv="Content-Type" content="text/html; charset={enc}">
-          <title>{title}</title>
-          <script>
-            function upload() {{
-              var file = document.getElementById("file").files[0];
-              if (!file) {{ return; }}
-              fetch(document.location.href, {{ method: 'POST', body: file, headers: {{ filename: file.name }} }})
-                .catch(console.error)
-                .then(() => {{ window.location = document.referrer }});
-            }}
-          </script>
-        </head>
-        <body>
-          <h1>{title}</h1>
-          <hr><input id="file" type="file" onchange="upload()"><hr>
-        </body>
-        </html>
-        '''.format(**locals()).encode(enc, 'surrogateescape')
         f = io.BytesIO()
-        f.write(encoded)
+        f.write(UPLOAD_PAGE_TEMPLATE.format(**locals()).encode(enc, 'surrogateescape'))
         f.seek(0)
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-type", "text/html; charset=%s" % enc)
