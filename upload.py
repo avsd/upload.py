@@ -4,9 +4,8 @@ import io
 import urllib
 from http import server, HTTPStatus
 from functools import partial
-import contextlib
 
-UPLOAD_LINK = '... click here to upload a file ...'
+UPLOAD_LINK = '... click here to upload files ...'
 UPLOAD_PAGE_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -15,17 +14,20 @@ UPLOAD_PAGE_TEMPLATE = '''
   <title>Upload to {displaypath}</title>
   <script>
     function upload() {{
-      var file = document.getElementById("file").files[0];
-      if (!file) {{ return; }}
-      fetch(document.location.href, {{ method: 'POST', body: file, headers: {{ filename: file.name }} }})
-        .catch(console.error)
-        .then(() => {{ window.location = document.referrer }});
+      var files = Array.from(document.getElementById("file").files);
+      if (!files.length) {{ return; }}
+      document.write('<h2>Uploading ' + files.length + 'files...</h2>');
+      files.reduce((acc, file, i) => acc.then(
+          () => fetch(document.location.href, {{ method: 'POST', body: file, headers: {{ filename: file.name }} }})
+        ).then(() => document.write('<br>' + (i + 1) + '. Uploaded: <b>' + file.name + '</b>')).catch(console.error),
+        new Promise(resolve => resolve())
+      ).then(() => {{ window.location = document.referrer }});
     }}
   </script>
 </head>
 <body>
   <h1>Upload to {displaypath}</h1>
-  <hr><input id="file" type="file" onchange="upload()"><hr>
+  <hr><input id="file" type="file" onchange="upload()" multiple><hr>
 </body>
 </html>
 '''
