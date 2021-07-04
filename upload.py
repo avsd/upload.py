@@ -84,13 +84,4 @@ if __name__ == '__main__':
     parser.add_argument('port', action='store', default=8000, type=int, nargs='?', help='Port number [default: 8000]')
     args = parser.parse_args()
     handler_class = partial(SimpleHTTPRequestHandlerWithUpload, directory=args.directory)
-
-    # ensure dual-stack is not disabled; ref #38907
-    class DualStackServer(server.ThreadingHTTPServer):
-        def server_bind(self):
-            # suppress exception when protocol is IPv4
-            with contextlib.suppress(Exception):
-                self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
-            return super().server_bind()
-
-    server.test(HandlerClass=handler_class, ServerClass=DualStackServer, port=args.port, bind=args.bind)
+    server.test(HandlerClass=handler_class, port=args.port, bind=args.bind)
