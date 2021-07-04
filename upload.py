@@ -84,4 +84,4 @@ if __name__ == '__main__':
     parser.add_argument('port', action='store', default=8000, type=int, nargs='?', help='Port number [default: 8000]')
     args = parser.parse_args()
     handler_class = partial(SimpleHTTPRequestHandlerWithUpload, directory=args.directory)
-    server.test(HandlerClass=handler_class, port=args.port, bind=args.bind)
+    server.test(HandlerClass=handler_class, port=args.port, **({'bind': args.bind} if args.bind else {}))
