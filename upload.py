@@ -80,8 +80,16 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--bind', '-b', metavar='ADDRESS', help='Bind address [default: all interfaces]')
-    parser.add_argument('--directory', '-d', default=os.getcwd(), help='Directory to list [default:current directory]')
+    if sys.version_info.minor > 6:
+        parser.add_argument(
+            '--directory', '-d', default=os.getcwd(), help='Directory to list [default:current directory]')
     parser.add_argument('port', action='store', default=8000, type=int, nargs='?', help='Port number [default: 8000]')
-    args = parser.parse_args()
-    handler_class = partial(SimpleHTTPRequestHandlerWithUpload, directory=args.directory)
-    server.test(HandlerClass=handler_class, port=args.port, **({'bind': args.bind} if args.bind else {}))
+    args = vars(parser.parse_args())
+    handler_class = (
+        partial(SimpleHTTPRequestHandlerWithUpload, directory=args.pop('directory'))
+        if sys.version_info.minor > 6
+        else SimpleHTTPRequestHandlerWithUpload
+    )
+    if not args.get('bind'):
+        args.pop('bind')
+    server.test(HandlerClass=handler_class, **args)
